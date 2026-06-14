@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ricettario</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="Ricetta.js"></script>
+</head>
+<body>
+
+    <div class="home">
+        <h1>Ricettario</h1>
+    </div>
+
+    <div class="ribbon-tabs" style="margin-top: 140px;">
+        <button class="tab-btn active" onclick="openTab('home')">Home</button>
+        <button class="tab-btn" onclick="openTab('antipasti')">Antipasti</button>
+        <button class="tab-btn" onclick="openTab('primi')">Primi</button>
+        <button class="tab-btn" onclick="openTab('secondi')">Secondi</button>
+        <button class="tab-btn" onclick="openTab('contorni')">Contorni</button>
+        <button class="tab-btn" onclick="openTab('dolci')">Dolci</button>
+    </div>
+
+    <div class="tab-content">
+        <div id="home" class="tab-panel active"><div class="lista-ricette"></div></div>
+        <div id="antipasti" class="tab-panel"><div class="lista-ricette"></div></div>
+        <div id="primi" class="tab-panel"><div class="lista-ricette"></div></div>
+        <div id="secondi" class="tab-panel"><div class="lista-ricette"></div></div>
+        <div id="contorni" class="tab-panel"><div class="lista-ricette"></div></div>
+        <div id="dolci" class="tab-panel"><div class="lista-ricette"></div></div>
+    </div>
+
+    <div class="search-buttons">
+        <button id="search-btn">Cerca</button>
+    </div>
+
+    <div class="piu-buttons">
+        <button id="piu-btn" onclick="add()">+</button>
+    </div>
+
+    <div class="backup-buttons">
+        <button onclick="esportaBackup()">💾 Salva Backup</button>
+        <button onclick="document.getElementById('file-import').click()">📂 Carica Backup</button>
+        <input type="file" id="file-import" accept=".json" onchange="importaBackup(event)" style="display: none;">
+    </div>
+
+    <script>
+        const mioRicettario = new GestoreRicette();
+        // Nuova variabile di stato per salvare la parola cercata (null se non stiamo cercando nulla)
+        let queryRicerca = null; 
+
+        function openTab(tabId) {
+            const panels = document.querySelectorAll('.tab-panel');
+            panels.forEach(panel => panel.classList.remove('active'));
+
+            const buttons = document.querySelectorAll('.tab-btn');
+            buttons.forEach(button => button.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            
+            // CORRETTO: Usa event.currentTarget in modo sicuro
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
+            
+            // Quando cambi Tab, resettiamo la ricerca per non fare confusione
+            queryRicerca = null;
+            aggiornaBottoneCerca();
+            
+            mostraRicetteASchermo(tabId);
+        }
+
+        function add(){
+            const nome = prompt("Inserisci il nome della ricetta:");
+            if (!nome) return;
+
+            const sceltaCategoria = prompt(
+                "Seleziona la categoria (inserisci il numero):\n" +
+                "1. Antipasti\n" +
+                "2. Primi\n" +
+                "3. Secondi\n" +
+                "4. Contorni\n" +
+                "5. Dolci"
+            );
+
+            let categoria = "home";
+            if (sceltaCategoria === "1") categoria = "antipasti";
+            else if (sceltaCategoria === "2") categoria = "primi";
+            else if (sceltaCategoria === "3") categoria = "secondi";
+            else if (sceltaCategoria === "4") categoria = "contorni";
+            else if (sceltaCategoria === "5") categoria = "dolci";
+            else {
+                alert("Scelta non valida!");
+                return;
+            }
+
+            const ingredienti = prompt("Inserisci gli ingredienti (separati da virgola):");
+            const passaggi = prompt("Inserisci i passaggi (separati da virgola):");
+            const tempoPreparazione = prompt("Inserisci il tempo di preparazione (in minuti):");
+            const veggy = confirm("La ricetta è vegetariana?");
+            const spicy = confirm("La ricetta è piccante?");
+
+            try {
+                mioRicettario.aggiungiRicetta(nome, ingredienti ? ingredienti.split(",") : [], passaggi ? passaggi.split(",") : [], tempoPreparazione, veggy, spicy, categoria);
+                queryRicerca = null; // Resetta la ricerca se aggiungi qualcosa
+                aggiornaBottoneCerca();
+                const tabAttivo = document.querySelector('.tab-panel.active').id;
+                mostraRicetteASchermo(tabAttivo);
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        function eliminaRicetta(nome) {
+            if (confirm(`Sei sicuro di voler eliminare la ricetta "${nome}"?`)) {
+                mioRicettario.rimuoviRicetta(nome);
+                const tabAttivo = document.querySelector('.tab-panel.active').id;
+                mostraRicetteASchermo(tabAttivo);
+            }
+        }
+
+        function modificaRicetta(nomeOriginale) {
+            const ricetta = mioRicettario.getTutteRicette().find(r => r.nome.toLowerCase() === nomeOriginale.toLowerCase());
+            if (!ricetta) return;
+
+            const nuovoNome = prompt("Modifica il nome:", ricetta.nome);
+            if (!nuovoNome) return;
+
+            const nuoviIngredienti = prompt("Modifica gli ingredienti (separati da virgola):", ricetta.ingredienti.join(","));
+            const nuoviPassaggi = prompt("Modifica i passaggi (separati da virgola):", ricetta.passaggi.join(","));
+            const nuovoTempo = prompt("Modifica il tempo (in minuti):", ricetta.tempoPreparazione);
+            const nuovoVeggy = confirm("È vegetariana?", ricetta.veggy);
+            const nuovoSpicy = confirm("È piccante?", ricetta.spicy);
+
+            try {
+                const ricettaAggiornata = {
+                    nome: nuovoNome,
+                    ingredienti: nuoviIngredienti ? nuoviIngredienti.split(",") : [],
+                    passaggi: nuoviPassaggi ? nuoviPassaggi.split(",") : [],
+                    tempoPreparazione: nuovoTempo,
+                    veggy: nuovoVeggy,
+                    spicy: nuovoSpicy,
+                    categoria: ricetta.categoria
+                };
+
+                mioRicettario.aggiornaRicetta(nomeOriginale, ricettaAggiornata);
+                const tabAttivo = document.querySelector('.tab-panel.active').id;
+                mostraRicetteASchermo(tabAttivo);
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+
+        // NUOVA FUNZIONE: Gestisce il click sul tasto cerca
+        function avviaRicerca() {
+            // Se c'è già una ricerca attiva, il tasto serve a "Annullarla"
+            if (queryRicerca !== null) {
+                queryRicerca = null;
+                aggiornaBottoneCerca();
+                const tabAttivo = document.querySelector('.tab-panel.active').id;
+                mostraRicetteASchermo(tabAttivo);
+                return;
+            }
+
+            // Altrimenti, chiede cosa cercare
+            const testoCercato = prompt("Cerca per nome o per ingrediente:");
+            if (!testoCercato || testoCercato.trim() === "") return;
+
+            queryRicerca = testoCercato.trim().toLowerCase();
+            aggiornaBottoneCerca();
+            
+            const tabAttivo = document.querySelector('.tab-panel.active').id;
+            mostraRicetteASchermo(tabAttivo);
+        }
+
+        // NUOVA FUNZIONE: Cambia la grafica del bottone Cerca in base allo stato
+        function aggiornaBottoneCerca() {
+            const btn = document.getElementById('search-btn');
+            if (queryRicerca !== null) {
+                btn.innerText = "X Resetta";
+                btn.style.backgroundColor = "#d9383a"; // Diventa rosso per far capire che annulla
+            } else {
+                btn.innerText = "Cerca";
+                btn.style.backgroundColor = "#007BA7"; // Torna azzurro
+            }
+        }
+
+        // AGGIORNATO: Logica di filtro per la ricerca inclusa
+        function mostraRicetteASchermo(tabCorrente = 'home') {
+            const pannelloAttivo = document.getElementById(tabCorrente);
+            const contenitore = pannelloAttivo.querySelector('.lista-ricette');
+            if (!contenitore) return;
+            
+            contenitore.innerHTML = ''; 
+
+            let ricetteDaMostrare = mioRicettario.getTutteRicette();
+            
+            // 1. Filtro per Categoria (se non siamo in Home)
+            if (tabCorrente !== 'home') {
+                ricetteDaMostrare = ricetteDaMostrare.filter(ricetta => ricetta.categoria === tabCorrente);
+            }
+
+            // 2. NUOVO: Filtro per Ricerca (se l'utente ha cercato qualcosa)
+            if (queryRicerca !== null) {
+                ricetteDaMostrare = ricetteDaMostrare.filter(ricetta => {
+                    const nelNome = ricetta.nome.toLowerCase().includes(queryRicerca);
+                    // Controlla se almeno uno degli ingredienti contiene la parola cercata
+                    const negliIngredienti = ricetta.ingredienti.some(ing => ing.toLowerCase().includes(queryRicerca));
+                    
+                    return nelNome || negliIngredienti;
+                });
+            }
+
+            // Messaggio personalizzato se non trova nulla con la ricerca o se la sezione è vuota
+            if (ricetteDaMostrare.length === 0) {
+                if (queryRicerca !== null) {
+                    contenitore.innerHTML = `<p class="vuoto">Nessun risultato trovato per "${queryRicerca}".</p>`;
+                } else {
+                    contenitore.innerHTML = '<p class="vuoto">Non ci sono ancora ricette in questa sezione.</p>';
+                }
+                return;
+            }
+
+            ricetteDaMostrare.forEach(ricetta => {
+                const scheda = document.createElement('div');
+                scheda.className = 'scheda-ricetta';
+
+                scheda.innerHTML = `
+                    <h3>${ricetta.nome} ${ricetta.veggy ? '🌱' : ''} ${ricetta.spicy ? '🌶️' : ''}</h3>
+                    <p style="font-size:11px; color:#888; text-transform: uppercase; margin-bottom:15px;">Categoria: ${ricetta.categoria}</p>
+                    <p><strong>Tempo:</strong> ${ricetta.tempoPreparazione} minuti</p>
+                    <p><strong>Ingredienti:</strong> ${ricetta.ingredienti.join(', ')}</p>
+                    <p><strong>Procedimento:</strong> ${ricetta.passaggi.join(' -> ')}</p>
+                    
+                    <div class="scheda-actions">
+                        <button class="btn-modifica" onclick="modificaRicetta('${ricetta.nome.replace(/'/g, "\\'")}')">Modifica</button>
+                        <button class="btn-elimina" onclick="eliminaRicetta('${ricetta.nome.replace(/'/g, "\\'")}')">Elimina</button>
+                    </div>
+                `;
+
+                contenitore.appendChild(scheda);
+            });
+        }
+
+        // Collega la funzione al click del bottone cerca nell'HTML
+        document.getElementById('search-btn').onclick = avviaRicerca;
+
+        mostraRicetteASchermo('home');
+
+        // FUNZIONE PER SCARICARE IL FILE JSON SUL TELEFONO
+        function esportaBackup() {
+            const ricette = mioRicettario.getTutteRicette();
+            if (ricette.length === 0) {
+                alert("Non ci sono ricette da salvare!");
+                return;
+            }
+
+            // Trasformiamo l'array in testo JSON formato stringa
+            const dataStr = JSON.stringify(ricette, null, 2);
+            // Creiamo un "finto file" in memoria (Blob)
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+
+            // Creiamo un link invisibile, ci clicchiamo sopra via codice per avviare il download e lo eliminiamo
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.href = url;
+            downloadAnchor.download = "ricettario_backup.json";
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            URL.revokeObjectURL(url);
+        }
+
+        // FUNZIONE PER LEGGERE IL FILE JSON CARICATO E COPIARLO IN MEMORIA
+        function importaBackup(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const ricetteImportate = JSON.parse(e.target.result);
+                    
+                    // Controllo base per verificare che sia un array valido
+                    if (!Array.isArray(ricetteImportate)) {
+                        throw new Error("Il file di backup non è nel formato corretto.");
+                    }
+
+                    if (confirm(`Vuoi importare ${ricetteImportate.length} ricette? Attenzione: questo sovrascriverà quelle attuali.`)) {
+                        // Sostituiamo i dati nel localStorage e ricarichiamo il gestore
+                        localStorage.setItem("ricette", JSON.stringify(ricetteImportate));
+                        
+                        // Forziamo l'applicazione a ricaricare i dati aggiornando la pagina
+                        window.location.reload();
+                    }
+                } catch (err) {
+                    alert("Errore durante l'importazione: " + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>
