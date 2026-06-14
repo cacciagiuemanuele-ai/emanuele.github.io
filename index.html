@@ -95,14 +95,14 @@
                 return;
             }
 
-            const ingredienti = prompt("Inserisci gli ingredienti (separati da virgola):");
-            const passaggi = prompt("Inserisci i passaggi (separati da virgola):");
+            const ingredienti = prompt("Inserisci gli ingredienti (separati da >):");
+            const passaggi = prompt("Inserisci i passaggi (separati da >):");
             const tempoPreparazione = prompt("Inserisci il tempo di preparazione (in minuti):");
             const veggy = confirm("La ricetta è vegetariana?");
             const spicy = confirm("La ricetta è piccante?");
 
             try {
-                mioRicettario.aggiungiRicetta(nome, ingredienti ? ingredienti.split(",") : [], passaggi ? passaggi.split(",") : [], tempoPreparazione, veggy, spicy, categoria);
+                mioRicettario.aggiungiRicetta(nome, ingredienti ? ingredienti.split(">") : [], passaggi ? passaggi.split(">") : [], tempoPreparazione, veggy, spicy, categoria);
                 queryRicerca = null; // Resetta la ricerca se aggiungi qualcosa
                 aggiornaBottoneCerca();
                 const tabAttivo = document.querySelector('.tab-panel.active').id;
@@ -127,8 +127,8 @@
             const nuovoNome = prompt("Modifica il nome:", ricetta.nome);
             if (!nuovoNome) return;
 
-            const nuoviIngredienti = prompt("Modifica gli ingredienti (separati da virgola):", ricetta.ingredienti.join(","));
-            const nuoviPassaggi = prompt("Modifica i passaggi (separati da virgola):", ricetta.passaggi.join(","));
+            const nuoviIngredienti = prompt("Modifica gli ingredienti (separati da >):", ricetta.ingredienti.join(","));
+            const nuoviPassaggi = prompt("Modifica i passaggi (separati da >):", ricetta.passaggi.join(","));
             const nuovoTempo = prompt("Modifica il tempo (in minuti):", ricetta.tempoPreparazione);
             const nuovoVeggy = confirm("È vegetariana?", ricetta.veggy);
             const nuovoSpicy = confirm("È piccante?", ricetta.spicy);
@@ -136,8 +136,8 @@
             try {
                 const ricettaAggiornata = {
                     nome: nuovoNome,
-                    ingredienti: nuoviIngredienti ? nuoviIngredienti.split(",") : [],
-                    passaggi: nuoviPassaggi ? nuoviPassaggi.split(",") : [],
+                    ingredienti: nuoviIngredienti ? nuoviIngredienti.split(">") : [],
+                    passaggi: nuoviPassaggi ? nuoviPassaggi.split(">") : [],
                     tempoPreparazione: nuovoTempo,
                     veggy: nuovoVeggy,
                     spicy: nuovoSpicy,
