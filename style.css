@@ -109,6 +109,8 @@ body {
     max-width: 600px;
     margin: 0 auto;
     margin-top: 240px;
+
+    padding-top: 170px;
 }
 /* Allinea i bottoni delle azioni in fondo a destra della scheda */
 .scheda-actions {
