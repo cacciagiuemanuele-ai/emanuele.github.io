@@ -154,7 +154,8 @@ body {
     left: 20px;
     z-index: 1000;
     display: flex;
-    gap: 10px; /* Spazio tra i due bottoni */
+    flex-direction: column; /* Dispone i bottoni uno sopra l'altro */
+    gap: 8px; /* Spazio tra i due bottoni */
 }
 
 /* Stile per rendere i bottoni carini e facili da cliccare su smartphone */
@@ -169,10 +170,15 @@ body {
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     transition: all 0.2s ease;
+    text-align: center;
+    white-space: nowrap;
 }
 
 /* Feedback visivo quando li tocchi da telefono */
 .backup-buttons button:active {
     transform: scale(0.95);
     background-color: #f0f0f0;
+}
+.backup-buttons button:active, #piu-btn:active {
+    transform: scale(0.93);
 }
