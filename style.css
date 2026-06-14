@@ -74,10 +74,12 @@ body {
 
 .ribbon-tabs {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin: 0;
-    padding: 0;
+    gap: 10px;
+    margin-left: 20px;
+    margin-bottom: 20px;
+    overflow-x: auto; /* Se i tab sono troppi, sul telefono si possono scrollare lateralmente col dito! */
+    white-space: nowrap;
+    padding-bottom: 5px;
 }
 .tab-btn {
     background: transparent;
