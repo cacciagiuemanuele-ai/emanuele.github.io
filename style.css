@@ -4,7 +4,8 @@
 }
 h1 {
     font-family: Fascinate;
-    font-size: 50px;
+    font-size: 38px; /* Ridotto leggermente per il telefono */
+    margin: 0 0 10px 0;
 }
 p {
     margin-top: 5px;
@@ -29,53 +30,56 @@ body {
     background-color: white;
     color: black;
     border: none;
-    
-    /* Sostituisci il padding con larghezza e altezza fisse per un cerchio perfetto */
-    width: 80px;
-    height: 80px;
-    
-    font-size: 45px;
-    border-radius: 50%; /* 50% lo rende perfettamente tondo */
+    width: 65px;  /* Ridotto da 80px a 65px per lasciare spazio al centro */
+    height: 65px; /* Ridotto da 80px a 65px */
+    font-size: 35px;
+    border-radius: 50%;
     cursor: pointer;
     transition: all 0.3s ease;
-    
-    /* Centra il "+" all'interno del cerchio */
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 .search-buttons {
     position: fixed;
-    top: 20px;
+    top: 15px; /* Allineato al nuovo spazio del titolo */
     right: 20px;
-    z-index: 1000;   /* Serve per farlo stare sopra a qualsiasi altro elemento */
+    z-index: 1001; /* Sopra alla barra del titolo */
 }
 #search-btn {
     background-color: #007BA7;
     color: rgb(236, 236, 216);
     border: none;
-
-    width: 90px;
-    height: 50px;
-    font-size: 18px;
-    border-radius: 15px;
-    
+    width: 80px;  /* Un pelo più stretto */
+    height: 40px; /* Un pelo più basso */
+    font-size: 15px;
+    border-radius: 10px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 .home {
     position: fixed;
-    top: 20px;
-    left: 20px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgb(236, 236, 216); /* Copre le ricette che scrollano sotto */
+    z-index: 999;
+    padding: 15px 20px 5px 20px;
+    box-sizing: border-box;
 }
 
 .ribbon-tabs {
     display: flex;
-    gap: 15px;
-    margin-left: 20px; /* Allineato grossomodo sotto al titolo */
+    gap: 10px;
+    margin-left: 20px;
     margin-bottom: 20px;
+    overflow-x: auto; /* Se i tab sono troppi, sul telefono si possono scrollare lateralmente col dito! */
+    white-space: nowrap;
+    padding-bottom: 5px;
 }
 .tab-btn {
     background: transparent;
@@ -158,12 +162,12 @@ body {
     background-color: white;
     color: black;
     border: none;
-    padding: 10px 15px;
-    font-size: 14px;
+    padding: 8px 12px; /* Più stretti e compatti */
+    font-size: 12px;   /* Testo leggermente più piccolo per il mobile */
     font-family: sans-serif;
-    border-radius: 12px; /* Arrotondati come il tasto cerca */
+    border-radius: 10px;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Ombra leggera per staccarsi dallo sfondo */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     transition: all 0.2s ease;
 }
 
