@@ -128,8 +128,8 @@
             const nuovoNome = prompt("Modifica il nome:", ricetta.nome);
             if (!nuovoNome) return;
 
-            const nuoviIngredienti = prompt("Modifica gli ingredienti (separati da >):", ricetta.ingredienti.join(","));
-            const nuoviPassaggi = prompt("Modifica i passaggi (separati da >):", ricetta.passaggi.join(","));
+            const nuoviIngredienti = prompt("Modifica gli ingredienti (separati da >):", ricetta.ingredienti.join(">"));
+            const nuoviPassaggi = prompt("Modifica i passaggi (separati da >):", ricetta.passaggi.join(">"));
             const nuovoTempo = prompt("Modifica il tempo (in minuti):", ricetta.tempoPreparazione);
             const nuovoVeggy = confirm("È vegetariana?", ricetta.veggy);
             const nuovoSpicy = confirm("È piccante?", ricetta.spicy);
